@@ -117,7 +117,7 @@ def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     return True
 
 
-def generate_sudoku(N: int) -> tp.Optional[tp.List[tp.List[str]]]:
+def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     grid = [["." for i in range(9)] for j in range(9)]
     grid = solve(grid)
     if grid is None:
