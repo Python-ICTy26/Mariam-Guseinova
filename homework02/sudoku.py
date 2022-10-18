@@ -118,7 +118,7 @@ def check_solution(solution: tp.List[tp.List[str]]) -> bool:
 
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
-    grid = [['.' for i in range(9)] for j in range(9)]
+    grid = [["." for i in range(9)] for j in range(9)]
     grid = solve(grid)
     if N > 81:
         N = 81
@@ -128,10 +128,10 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     for k in range(propuski):
         row = randint(0, 8)
         col = randint(0, 8)
-        while grid[row][col] == '.':
+        while grid[row][col] == ".":
             row = randint(0, 8)
             col = randint(0, 8)
-        grid[row][col] = '.'
+        grid[row][col] = "."
     return grid
 
 
