@@ -132,7 +132,6 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
             row = randint(0, 8)
             col = randint(0, 8)
         grid[row][col] = "."
-
     return grid
 
 
