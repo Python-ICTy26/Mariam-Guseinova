@@ -132,6 +132,8 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
                 col = randint(0, 8)
             grid[row][col] = "."
         return grid
+    else:
+        return None
 
 
 if __name__ == "__main__":
