@@ -80,7 +80,7 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
     return result
 
 
-def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
+def solve(grid: tp.List[tp.List[str]]) -> tp.List[tp.List[str]]:
     empty_position = find_empty_positions(grid)
     if empty_position is not None:
         possible_values = find_possible_values(grid, empty_position)
