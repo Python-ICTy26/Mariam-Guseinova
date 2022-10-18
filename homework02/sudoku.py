@@ -82,10 +82,10 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     empty_position = find_empty_positions(grid)
-    if not empty_position:
-        return grid
-    else:
+    if empty_position is not None:
         possible_values = find_possible_values(grid, empty_position)
+    else:
+        return grid
     for answer in possible_values:
         grid[empty_position[0]][empty_position[1]] = answer
         solution = solve(grid)
@@ -120,17 +120,18 @@ def check_solution(solution: tp.List[tp.List[str]]) -> bool:
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     grid = [["." for i in range(9)] for j in range(9)]
     grid = solve(grid)
-    if N > 81:
-        N = 81
-    propuski = 81 - N
-    for k in range(propuski):
-        row = randint(0, 8)
-        col = randint(0, 8)
-        while grid[row][col] == ".":
+    if grid is not None:
+        if N > 81:
+            N = 81
+        propuski = 81 - N
+        for k in range(propuski):
             row = randint(0, 8)
             col = randint(0, 8)
-        grid[row][col] = "."
-    return grid
+            while grid[row][col] == ".":
+                row = randint(0, 8)
+                col = randint(0, 8)
+            grid[row][col] = "."
+        return grid
 
 
 if __name__ == "__main__":
