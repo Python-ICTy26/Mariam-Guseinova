@@ -122,8 +122,6 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     grid = solve(grid)
     if N > 81:
         N = 81
-    else:
-        N = N
     propuski = 81 - N
     for k in range(propuski):
         row = randint(0, 8)
