@@ -118,10 +118,10 @@ def check_solution(solution: tp.List[tp.List[str]]) -> bool:
 
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
-    grid = [["." for i in range(9)] for j in range(9)]
-    grid = solve(grid)
+    empty_grid = [["." for i in range(9)] for j in range(9)]
+    grid = solve(empty_grid)
     if grid is None:
-        return grid
+        return empty_grid
     if N > 81:
         N = 81
     propuski = 81 - N
