@@ -1,6 +1,8 @@
 import pathlib
 import random
 import typing as tp
+import pygame
+from pygame.locals import *
 
 Cell = tp.Tuple[int, int]
 Cells = tp.List[int]
@@ -26,39 +28,43 @@ class GameOfLife:
         self.generations = 1
 
     def create_grid(self, randomize: bool = False) -> Grid:
-        if randomize:
-            grid = [[random.choice([0, 1]) for col in range(self.cols)] for row in range(self.rows)]
-        else:
-            grid = [[0 for col in range(self.cols)] for row in range(self.rows)]
+        grid = []
+        for i in range(self.rows):
+            string = []
+            if randomize:
+                for f in range(self.cols):
+                    string.append(random.randint(0, 1))
+            else:
+                for f in range(self.cols):
+                    string.append(0)
+            grid.append(string)
         return grid
 
     def get_neighbours(self, cell: Cell) -> Cells:
-        cells_list = []
-        row, col = cell
-        for x in range(-1, 2):
-            for y in range(-1, 2):
-                if (
-                    ((y != x) or (x + y != 0))
-                    and (0 <= row + x < self.rows)
-                    and (0 <= col + y < self.cols)
-                ):
-                    cells_list += [self.curr_generation[row + x][col + y]]
-        return cells_list
+        neighbours = []
+        for x, y in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]:
+            if 0 <= cell[0] + x < self.rows and 0 <= cell[1] + y < self.cols:
+                neighbours.append(self.curr_generation[cell[0] + x][cell[1] + y])
+        return neighbours
 
     def get_next_generation(self) -> Grid:
-        new_generation = self.create_grid()
-        for col in range(self.cols):
-            for row in range(self.rows):
-                if sum(self.get_neighbours((row, col))) == 3:
-                    new_generation[row][col] = 1
-                elif (
-                    sum(self.get_neighbours((row, col))) == 2
-                    and self.curr_generation[row][col] == 1
-                ):
-                    new_generation[row][col] = 1
+        next_generation = []
+        for x in range(self.rows):
+            list_ = []
+            for y in range(self.cols):
+                neighbours = self.get_neighbours((x, y))
+                if self.curr_generation[x][y] == 1:
+                    if sum(neighbours) < 2 or sum(neighbours) > 3:
+                        list_.append(0)
+                    else:
+                        list_.append(1)
                 else:
-                    new_generation[row][col] = 0
-        return new_generation
+                    if sum(neighbours) == 3:
+                        list_.append(1)
+                    else:
+                        list_.append(0)
+            next_generation.append(list_)
+        return next_generation
 
     def step(self) -> None:
         """
@@ -99,9 +105,9 @@ class GameOfLife:
                     number_of_rows += 1
         number_of_columns = len(grid_from_file[0])
 
-        gof = GameOfLife((number_of_rows, number_of_columns))
-        gof.curr_generation = grid_from_file
-        return gof
+        game = GameOfLife((number_of_rows, number_of_columns))
+        game.curr_generation = grid_from_file
+        return game
 
     def save(self, filename: pathlib.Path) -> None:
         """
