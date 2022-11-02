@@ -85,19 +85,21 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     empty_position = find_empty_positions(grid)  # кортеж, содержащий координаты
     if empty_position is not None:
-            possible_values = find_possible_values(grid, empty_position)  # множество
+        possible_values = find_possible_values(grid, empty_position)  # множество
     else:
         return grid
     if not possible_values:
         return None
-        
+
     values, positions = [], []
     values.append(possible_values)
     positions.append(empty_position)
     last = possible_values.pop()  # "вытаскивает" первый элемент из множества
 
     while empty_position is not None:
-        grid[empty_position[0]][empty_position[1]] = last  # вставляем на пустую позицию возможное значение
+        grid[empty_position[0]][
+            empty_position[1]
+        ] = last  # вставляем на пустую позицию возможное значение
         empty_position = find_empty_positions(grid)  # считываем следующую пустую позицию
         if empty_position is None:
             return grid
@@ -155,6 +157,7 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
         grid[row][col] = "."
     return grid
 
+
 def hard_puzzles(string, i):
     grid = create_grid(string)
     t1 = t2.process_time()
@@ -162,13 +165,11 @@ def hard_puzzles(string, i):
     time = t2.process_time() - t1
     if not solution:
         print(f"Puzzle {i+1} can't be solved")
-        
 
-    
 
 if __name__ == "__main__":
     with open("hard_puzzles.txt") as file:
         sudoki = list(map(str.rstrip, file.readlines()))
     for i in range(len(sudoki)):
-            th = multiprocessing.Process(target=hard_puzzles, args=(sudoki[i], i))
-            th.start()
+        th = multiprocessing.Process(target=hard_puzzles, args=(sudoki[i], i))
+        th.start()
