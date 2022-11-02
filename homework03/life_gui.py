@@ -6,16 +6,73 @@ from ui import UI
 
 class GUI(UI):
     def __init__(self, life: GameOfLife, cell_size: int = 10, speed: int = 10) -> None:
+        self.life = life
+        self.cell_width = self.life.cols
+        self.cell_height = self.life.rows
+        self.width = self.cell_width * cell_size
+        self.height = self.cell_height * cell_size
+
+        self.cell_size = cell_size
+        self.speed = speed
+
+        self.screen_size = self.width, self.height
+        self.screen = pygame.display.set_mode(self.screen_size)
         super().__init__(life)
 
     def draw_lines(self) -> None:
-        # Copy from previous assignment
-        pass
+        """Отрисовать сетку"""
+        for x in range(0, self.width, self.cell_size):
+            pygame.draw.line(self.screen, pygame.Color("black"), (x, 0), (x, self.height))
+        for y in range(0, self.height, self.cell_size):
+            pygame.draw.line(self.screen, pygame.Color("black"), (0, y), (self.width, y))
 
     def draw_grid(self) -> None:
-        # Copy from previous assignment
-        pass
+        for row in range(self.cell_height):
+            for col in range(self.cell_width):
+                if grid[row][col] == 1:
+                    color = "green"
+                else:
+                    color = "white"
+                pygame.draw.rect(
+                    self.screen,
+                    pygame.Color(color),
+                    (col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size),
+                )
+                
+   def run(self) -> None:
+        """Запустить игру"""
+        pygame.init()
+        clock = pygame.time.Clock()
+        pygame.display.set_caption("Game of Life")
+        self.screen.fill(pygame.Color("white"))
 
-    def run(self) -> None:
-        # Copy from previous assignment
-        pass
+        # Создание списка клеток
+
+        running = True
+        pause = False
+        while running:
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        running = False
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            pause = not pause
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    self.edit_cell(x, y)
+                    self.draw_grid()
+                    self.draw_lines()
+                    pygame.display.flip()
+                if not pause:
+                    self.life.step()
+                    self.draw_grid()
+                    self.draw_lines()
+                    pygame.display.flip()
+                clock.tick(self.speed)
+        pygame.quit()
+
+
+if __name__ == "__main__":
+    life = GameOfLife((50, 50), max_generations=50)
+    ui = GUI(life)
+    ui.run()
