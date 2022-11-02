@@ -1,8 +1,8 @@
+import multiprocessing
 import pathlib
+import time
 import typing as tp
 from random import randint
-import multiprocessing
-import time
 
 T = tp.TypeVar("T")
 
