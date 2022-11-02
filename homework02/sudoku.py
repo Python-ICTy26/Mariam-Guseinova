@@ -1,6 +1,8 @@
 import pathlib
 import typing as tp
 from random import randint
+import multiprocessing
+import time
 
 T = tp.TypeVar("T")
 
@@ -81,18 +83,37 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
 
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
-    empty_position = find_empty_positions(grid)
+    empty_position = find_empty_positions(grid)  # кортеж, содержащий координаты
     if empty_position is not None:
-        possible_values = find_possible_values(grid, empty_position)
+            possible_values = find_possible_values(grid, empty_position)  # множество
     else:
         return grid
-    for answer in possible_values:
-        grid[empty_position[0]][empty_position[1]] = answer
-        solution = solve(grid)
-        if solution:
-            return solution
-    grid[empty_position[0]][empty_position[1]] = "."
-    return None
+    if not possible_values:
+        return None
+        
+    values, positions = [], []
+    values.append(possible_values)
+    positions.append(empty_position)
+    last = possible_values.pop()  # "вытаскивает" первый элемент из множества
+
+    while empty_position is not None:
+        grid[empty_position[0]][empty_position[1]] = last  # вставляем на пустую позицию возможное значение
+        empty_position = find_empty_positions(grid)  # считываем следующую пустую позицию
+        if empty_position is None:
+            return grid
+        possible_values = find_possible_values(grid, empty_position)
+        while not possible_values:
+            empty_position = positions.pop()
+            grid[empty_position[0]][empty_position[1]] = "."
+            possible_values = values.pop()
+        while possible_values == []:
+            empty_position = positions.pop()
+            grid[empty_position[0]][empty_position[1]] = "."
+            possible_values = values.pop()
+        positions.append(empty_position)
+        values.append(possible_values)
+        last = possible_values.pop()
+    return grid
 
 
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
@@ -134,13 +155,20 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
         grid[row][col] = "."
     return grid
 
+def hard_puzzles(string, i):
+    grid = create_grid(string)
+    t1 = t2.process_time()
+    solution = solve(grid)
+    time = t2.process_time() - t1
+    if not solution:
+        print(f"Puzzle {i+1} can't be solved")
+        
+
+    
 
 if __name__ == "__main__":
-    for fname in ["puzzle1.txt", "puzzle2.txt", "puzzle3.txt"]:
-        grid = read_sudoku(fname)
-        display(grid)
-        solution = solve(grid)
-        if not solution:
-            print(f"Puzzle {fname} can't be solved")
-        else:
-            display(solution)
+    with open("hard_puzzles.txt") as file:
+        sudoki = list(map(str.rstrip, file.readlines()))
+    for i in range(len(sudoki)):
+            th = multiprocessing.Process(target=hard_puzzles, args=(sudoki[i], i))
+            th.start()
