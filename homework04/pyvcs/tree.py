@@ -15,10 +15,10 @@ def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str
         files = oct(f.mode)[2:].encode()
         if "/" in f.name:
             num = f.name.find("/")
-            dirname = (f.name[:num]).encode()
+            dirname = (f.name[: num])
             new_f = files + b" " + f.name[num + 1 :].encode() + b"\0" + f.sha1
             hashh = bytes.fromhex(hash_object(new_f, fmt="tree", write=True))
-            tree += b"40000 " + dirname + b"\0" + hashh
+            tree += b"40000 " + dirname.encode() + b"\0" + hashh
         else:
             tree += files + b" " + f.name.encode() + b"\0" + f.sha1
     return hash_object(tree, fmt="tree", write=True)
