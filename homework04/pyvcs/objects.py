@@ -70,12 +70,11 @@ def read_tree(data: bytes) -> tp.List[tp.Tuple[int, str, str]]:
 
 def cat_file(obj_name: str, pretty: bool = True) -> None:
     path = repo_find()
-    for i in resolve_object(obj_name, path):
-        fmt, data = read_object(i, path)
-        if fmt == "tree":
+    for obj in resolve_object(obj_name, path):
+        header, data = read_object(obj, path)
+        if header == "tree":
             result = ""
             for j in read_tree(data):
-                repo_find()
                 result += (
                     f"{str(j[0]).zfill(6)} {read_object(j[2], repo_find())[0]} {j[2]}\t{j[1]}\n"
                 )
@@ -87,18 +86,18 @@ def cat_file(obj_name: str, pretty: bool = True) -> None:
 def find_tree_files(tree_sha: str, gitdir: pathlib.Path) -> tp.List[tp.Tuple[str, str]]:
     result = []
     header, data = read_object(tree_sha, gitdir)
-    for f in read_tree(data):
-        if read_object(f[2], gitdir)[0] == "tree":
-            tree = find_tree_files(f[2], gitdir)
-            for blob in tree:
-                name = f[1] + "/" + blob[0]
-                result.append((name, blob[1]))
+    for i in read_tree(data):
+        if read_object(i[2], gitdir)[0] == "tree":
+            tree = find_tree_files(i[2], gitdir)
+            for j in tree:
+                name = i[1] + "/" + j[0]
+                result.append((name, j[1]))
         else:
-            result.append((f[1], f[2]))
+            result.append((i[1], i[2]))
     return result
 
 
 def commit_parse(raw: bytes, start: int = 0, dct=None):
     data = zlib.decompress(raw)
-    i = data.find(b"tree")
-    return data[i + 5 : i + 45]
+    ind = data.find(b"tree")
+    return data[ind + 5 : ind + 45]
