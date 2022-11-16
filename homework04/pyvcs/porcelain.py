@@ -20,7 +20,7 @@ def commit(gitdir: pathlib.Path, message: str, author: tp.Optional[str] = None) 
 def checkout(gitdir: pathlib.Path, obj_name: str) -> None:
     file = gitdir / "refs" / "heads" / obj_name
     if file.exists():
-        with open(head, "w") as f:
+        with open(file, "w") as f:
             obj_name = f.read()
     ind = read_index(gitdir)
     for i in ind:
