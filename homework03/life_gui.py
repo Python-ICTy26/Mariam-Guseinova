@@ -1,6 +1,7 @@
 import pygame
-from life import GameOfLife
 from pygame.locals import *
+
+from life import GameOfLife
 from ui import UI
 
 
@@ -27,6 +28,7 @@ class GUI(UI):
             pygame.draw.line(self.screen, pygame.Color("black"), (0, y), (self.width, y))
 
     def draw_grid(self) -> None:
+        grid = self.life.curr_generation
         for row in range(self.cell_height):
             for col in range(self.cell_width):
                 if grid[row][col] == 1:
@@ -39,7 +41,7 @@ class GUI(UI):
                     (col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size),
                 )
                 
-   def run(self) -> None:
+    def run(self) -> None:
         """Запустить игру"""
         pygame.init()
         clock = pygame.time.Clock()
@@ -51,28 +53,30 @@ class GUI(UI):
         running = True
         pause = False
         while running:
-                for event in pygame.event.get():
-                    if event.type == QUIT:
-                        running = False
-                    elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
-                            pause = not pause
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = event.pos
-                    self.edit_cell(x, y)
-                    self.draw_grid()
-                    self.draw_lines()
-                    pygame.display.flip()
-                if not pause:
-                    self.life.step()
-                    self.draw_grid()
-                    self.draw_lines()
-                    pygame.display.flip()
-                clock.tick(self.speed)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        pause = not pause
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    click_x, click_y = pygame.mouse.get_pos()
+                    y, x = click_x // self.cell_size, click_y // self.cell_size
+                    self.life.curr_generation[x][y] = 0 if self.life.curr_generation[x][y] else 1
+            
+            if not pause:
+                self.life.step()
+            if self.life.is_max_generations_exceeded or not self.life.is_changing:
+                running = False
+                    
+            self.draw_grid()
+            self.draw_lines()
+            pygame.display.flip()
+            clock.tick(self.speed)
         pygame.quit()
 
 
 if __name__ == "__main__":
-    life = GameOfLife((50, 50), max_generations=50)
-    ui = GUI(life)
+    life=GameOfLife((50, 50), max_generations=50)
+    ui=GUI(life)
     ui.run()
