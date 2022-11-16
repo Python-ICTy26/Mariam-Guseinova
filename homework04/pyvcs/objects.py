@@ -12,29 +12,29 @@ from pyvcs.repo import repo_find
 
 def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
     store = f"{fmt} {len(data)}\0".encode() + data
-    hash_store = hashlib.sha1(store).hexdigest()
+    hashh = hashlib.sha1(store).hexdigest()
     if write:
-        path = repo_find() / "objects" / hash_store[:2]
+        path = repo_find() / "objects" / hashh[:2]
         if not path.exists():
             path.mkdir(parents=True)
-        file_path = path / hash_store[2:]
-        if not file_path.exists():
-            file_path.write_bytes(zlib.compress(store))
-    return hash_store
+        file = path / hashh[2:]
+        if not file.exists():
+            file.write(zlib.compress(store))
+    return hashh
 
 
 def resolve_object(obj_name: str, gitdir: pathlib.Path) -> tp.List[str]:
     if len(obj_name) < 4 or len(obj_name) > 40:
         raise Exception(f"Not a valid object name {obj_name}")
     objects = []
-    for i in (gitdir / "objects").iterdir():
-        if i.is_dir() and i.name == obj_name[:2]:
-            for j in i.iterdir():
-                if obj_name[2:] in j.name:
-                    objects.append(i.name + j.name)
-    if len(objects) == 0:
+    paths = gitdir / "objects" / obj_name[:2]
+    for path in paths.iterdir():
+        if not path.name.find(obj_name[2:]):
+            objects.append(obj_name[:2] + path.name)
+    if len(objects):
+        return objects
+    else:
         raise Exception(f"Not a valid object name {obj_name}")
-    return objects
 
 
 def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
