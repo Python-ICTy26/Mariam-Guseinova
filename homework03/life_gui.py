@@ -39,7 +39,7 @@ class GUI(UI):
                     pygame.Color(color),
                     (col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size),
                 )
-                
+
     def run(self) -> None:
         """Запустить игру"""
         pygame.init()
@@ -62,12 +62,12 @@ class GUI(UI):
                     click_x, click_y = pygame.mouse.get_pos()
                     y, x = click_x // self.cell_size, click_y // self.cell_size
                     self.life.curr_generation[x][y] = 0 if self.life.curr_generation[x][y] else 1
-            
+
             if not pause:
                 self.life.step()
             if self.life.is_max_generations_exceeded or not self.life.is_changing:
                 running = False
-                    
+
             self.draw_grid()
             self.draw_lines()
             pygame.display.flip()
@@ -76,6 +76,6 @@ class GUI(UI):
 
 
 if __name__ == "__main__":
-    life=GameOfLife((50, 50), max_generations=50)
-    ui=GUI(life)
+    life = GameOfLife((50, 50), max_generations=50)
+    ui = GUI(life)
     ui.run()
