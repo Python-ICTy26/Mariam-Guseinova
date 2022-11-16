@@ -46,18 +46,18 @@ def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
 
 def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
     path = gitdir / "objects" / sha[:2] / sha[2:]
-    with open(path, "rb") as f:
-        content = zlib.decompress(f.read())
-    part = content.find(b"\x00")
-    head = content[:part]
+    with open(path, "rb") as p:
+        content = zlib.decompress(p.read())
+    ind = content.find(b"\x00")
+    head = content[:ind]
     form = head[: head.find(b" ")]
-    data = content[(part + 1) :]
+    data = content[(ind + 1) :]
     return form.decode(), data
 
 
 def read_tree(data: bytes) -> tp.List[tp.Tuple[int, str, str]]:
     result = []
-    while len(data) != 0:
+    while len(data) > 0:
         mode = int(data[: data.find(b" ")].decode())
         data = data[data.find(b" ") + 1 :]
         name = data[: data.find(b"\x00")].decode()
