@@ -53,7 +53,7 @@ class GitIndexEntry(tp.NamedTuple):
 
 
 def read_index(gitdir: pathlib.Path) -> tp.List[GitIndexEntry]:
-    result = tp.List[GitIndexEntry] = []
+    result: tp.List[GitIndexEntry] = []
     try:
         with open(gitdir / "index", "rb") as file:
             content = file.read()
@@ -85,7 +85,7 @@ def write_index(gitdir: pathlib.Path, entries: tp.List[GitIndexEntry]) -> None:
 def ls_files(gitdir: pathlib.Path, details: bool = False) -> None:
     for f in read_index(gitdir):
         if details:
-            print(f"{oct(i.mode)[2:]} {f.sha1.hex()} 0	{f.name}")
+            print(f"{oct(f.mode)[2:]} {f.sha1.hex()} 0	{f.name}")
         else:
             print(f.name)
 
