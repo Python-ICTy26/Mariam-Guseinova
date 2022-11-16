@@ -19,7 +19,7 @@ def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
             path.mkdir(parents=True)
         file = path / hashh[2:]
         if not file.exists():
-            file.write(zlib.compress(store))
+            file.write_bytes(zlib.compress(store))
     return hashh
 
 
@@ -38,11 +38,10 @@ def resolve_object(obj_name: str, gitdir: pathlib.Path) -> tp.List[str]:
 
 
 def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
-    object_new = resolve_object(obj_name, gitdir)
-    if len(object_new) == 1:
-        return object_new[0]
+    if obj_name[2:] in str(gitdir.name):
+        return f"{obj_name[:2]}{gitdir.name}"
     else:
-        raise Exception(f"Ambiguous object name {obj_name}")
+        return "Not find"
 
 
 def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
