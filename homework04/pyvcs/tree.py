@@ -11,17 +11,17 @@ from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
 
 def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str = "") -> str:
     tree = b""
-    files = oct(f.mode)[2:].encode()
     for f in index:
-        if "/" in i.name:
+        files = oct(f.mode)[2:].encode()
+        if "/" in f.name:
             num = f.name.find("/")
             dirname = f.name[:num].encode()
             new_f = files + b" " + f.name[num + 1 :].encode() + b"\0" + f.sha1
-            hashh = bytes.fromhex(hash_object(new_f, "tree", write=True))
+            hashh = bytes.fromhex(hash_object(new_f, fmt="tree", write=True))
             tree += b"40000 " + dirname + b"\0" + hashh
         else:
             tree += files + b" " + f.name.encode() + b"\0" + f.sha1
-    return hash_object(tree, "tree", write=True)
+    return hash_object(tree, fmt="tree", write=True)
 
 
 def commit_tree(
@@ -37,9 +37,9 @@ def commit_tree(
     timezone = time.timezone
     sign = "+" if timezone < 0 else "-"
     hours = str(abs(timezone // 3600))
-    hours_ = hours if hours > 10 else "0" + hours
+    hours_ = hours if int(hours) > 10 else "0" + hours
     secs = str(abs((timezone // 60) % 60))
-    secs_ = secs if secs > 0 else "0" + secs
+    secs_ = secs if int(secs) > 0 else "0" + secs
     author_t = f"{timestamp} {sign}{hours_}{secs_}"
     result = f"tree {tree}\n"
     if parent:
