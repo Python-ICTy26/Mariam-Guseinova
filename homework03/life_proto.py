@@ -49,7 +49,7 @@ class GameOfLife:
         running = True
         while running:
             for event in pygame.event.get():
-                if event.type == QUIT:
+                if event.type == pygame.QUIT:
                     running = False
             self.draw_lines()
 
@@ -79,7 +79,7 @@ class GameOfLife:
     def draw_grid(self) -> None:
         for row in range(self.cell_height):
             for col in range(self.cell_width):
-                if grid[row][col] == 1:
+                if self.grid[row][col] == 1:
                     color = "green"
                 else:
                     color = "white"
