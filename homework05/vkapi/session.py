@@ -1,8 +1,15 @@
-import typing as tp
+import time
+import unittest
 
-import requests  # type: ignore
-from requests.adapters import HTTPAdapter  # type: ignore
-from requests.packages.urllib3.util.retry import Retry  # type: ignore
+import httpretty  # type: ignore
+import responses
+from requests.exceptions import (  # type: ignore
+    ConnectionError,
+    HTTPError,
+    ReadTimeout,
+    RetryError,
+)
+from vkapi.session import Session
 
 
 class Session:
