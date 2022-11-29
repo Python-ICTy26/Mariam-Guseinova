@@ -1,15 +1,8 @@
-import time
-import unittest
+import typing as tp
 
-import httpretty  # type: ignore
-import responses
-from requests.exceptions import (  # type: ignore
-    ConnectionError,
-    HTTPError,
-    ReadTimeout,
-    RetryError,
-)
-from vkapi.session import Session
+import requests  # type: ignore
+from requests.adapters import HTTPAdapter  # type: ignore
+from requests.packages.urllib3.util.retry import Retry  # type: ignore
 
 
 class Session:
@@ -28,22 +21,22 @@ class Session:
         max_retries: int = 3,
         backoff_factor: float = 0.3,
     ) -> None:
-        self._session = requests.Session()
-        self._session.mount(
-            "https://",
-            HTTPAdapter(
-                max_retries=Retry(
-                    total=max_retries,
-                    backoff_factor=backoff_factor,
-                    status_forcelist=[429, 500, 502, 503, 504],
-                )
-            ),
+        self.base_url = base_url
+        self.timeout = timeout
+        self.session = requests.Session()
+        adapter = HTTPAdapter(
+            max_retries=Retry(
+                total=max_retries,
+                backoff_factor=backoff_factor,
+                status_forcelist=(500, 502, 503, 504),
+            )
         )
-        self._base_url = base_url
-        self._timeout = timeout
+        self.session.mount("https://", adapter)
 
     def get(self, url: str, *args: tp.Any, **kwargs: tp.Any) -> requests.Response:
-        return self._session.get(self._base_url + "/" + url, params=kwargs, timeout=self._timeout)
+        resp = self.session.get(f"{self.base_url}/{url}", params=kwargs, timeout=self.timeout)
+        return resp
 
     def post(self, url: str, *args: tp.Any, **kwargs: tp.Any) -> requests.Response:
-        return self._session.post(self._base_url + "/" + url, data=kwargs)
+        resp = self.session.post(f"{self.base_url}/{url}", data=kwargs, timeout=self.timeout)
+        return resp
