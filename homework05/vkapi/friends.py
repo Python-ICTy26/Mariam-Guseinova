@@ -65,7 +65,7 @@ def get_mutual(
     :param progress: Callback для отображения прогресса.
     """
     session = Session(base_url=VK_CONFIG["domain"])
-    
+
     data = {
         "access_token": VK_CONFIG["access_token"],
         "source_uid": source_uid,
@@ -76,7 +76,7 @@ def get_mutual(
         "offset": offset,
         "v": VK_CONFIG["version"],
     }
-    
+
     result = []
     phrase = "friends.getMutual"
     for i in range(math.ceil(len(target_uids) / 100) if target_uids else 1):
