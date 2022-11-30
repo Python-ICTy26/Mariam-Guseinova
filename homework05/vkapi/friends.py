@@ -4,7 +4,7 @@ import time
 import typing as tp
 from time import sleep
 
-from vkapi.config import VK_CONFIG
+from vkapi.config import VK_CONFIG, config, session
 from vkapi.exceptions import APIError
 from vkapi.session import Session
 
@@ -66,7 +66,7 @@ def get_mutual(
     :param offset: Смещение, необходимое для выборки определенного подмножества общих друзей.
     :param progress: Callback для отображения прогресса.
     """
-    session = Session(base_url=VK_CONFIG["domain"])
+    session = session(base_url=VK_CONFIG["domain"])
 
     data = {
         "access_token": VK_CONFIG["access_token"],
