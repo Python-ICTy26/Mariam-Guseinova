@@ -9,20 +9,19 @@ from vkapi.friends import get_friends, get_mutual_with_class
 
 
 def ego_network(
-    friends: tp.List[int],
-    user_id: tp.Optional[int] = None,
+    user_id: tp.Optional[int] = None, friends: tp.List[int]
 ) -> tp.List[tp.Tuple[int, int]]:
     """
     Построить эгоцентричный граф друзей.
     :param user_id: Идентификатор пользователя, для которого строится граф друзей.
     :param friends: Идентификаторы друзей, между которыми устанавливаются связи.
     """
-    net = []
+    egonet = []
     mutual = get_mutual_with_class(source_uid=friends[0], target_uids=friends)
     for friend in mutual:
         for uid in friend["common_friends"]:
-            net.append((friend["id"], uid))
-    return net
+            egonet.append((friend["id"], uid))
+    return egonet
 
 
 def plot_ego_network(net: tp.List[tp.Tuple[int, int]]) -> None:
