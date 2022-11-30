@@ -35,9 +35,9 @@ class Session:
         self.session.mount("https://", adapter)
 
     def get(self, url: str, *args: tp.Any, **kwargs: tp.Any) -> requests.Response:
-        resp = self.session.get(f"{self.base_url}/{url}", params=kwargs, timeout=self.timeout)
+        response = self.session.get(f"{self.base_url}/{url}", params=kwargs, timeout=self.timeout)
         return response
 
     def post(self, url: str, *args: tp.Any, **kwargs: tp.Any) -> requests.Response:
-        resp = self.session.post(f"{self.base_url}/{url}", data=kwargs, timeout=self.timeout)
+        response = self.session.post(f"{self.base_url}/{url}", data=kwargs, timeout=self.timeout)
         return response
