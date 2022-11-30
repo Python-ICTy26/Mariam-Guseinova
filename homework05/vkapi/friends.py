@@ -4,7 +4,7 @@ import time
 import typing as tp
 from time import sleep
 
-from vkapi.config import VK_CONFIG, config, session
+from vkapi.config import VK_CONFIG
 from vkapi.exceptions import APIError
 from vkapi.session import Session
 
@@ -14,7 +14,7 @@ QueryParams = tp.Optional[tp.Dict[str, tp.Union[str, int]]]
 @dataclasses.dataclass(frozen=True)
 class FriendsResponse:
     count: int
-    items: tp.List[tp.Dict[str, tp.Any]]
+    items: tp.Union[tp.List[int], tp.List[tp.Dict[str, tp.Any]]]
 
 
 def get_friends(
@@ -29,16 +29,19 @@ def get_friends(
     :param fields: Список полей, которые нужно получить для каждого пользователя.
     :return: Список идентификаторов друзей пользователя или список пользователей.
     """
-    friends = session.get(
-        "friends.get",
-        user_id=user_id,
-        count=count,
-        offset=offset,
-        fields=fields,
-        v=config.VK_CONFIG["version"],
-        access_token=config.VK_CONFIG["access_token"],
-    ).json()["response"]
-    return FriendsResponse(friends["count"], friends["items"])
+    current_session = Session(base_url=VK_CONFIG["domain"])
+    data = {
+        "access_token": VK_CONFIG["access_token"],
+        "user_id": str(user_id),
+        "count": str(count),
+        "offset": str(offset),
+        "fields": fields,
+        "v": VK_CONFIG["version"],
+    }
+    query = "friends.get"
+    response = current_session.get(query, query=data)
+    json = response.json()
+    return FriendsResponse(json["response"]["count"], json["response"]["items"])
 
 
 class MutualFriends(tp.TypedDict):
@@ -50,24 +53,23 @@ class MutualFriends(tp.TypedDict):
 def get_mutual(
     source_uid: tp.Optional[int] = None,
     target_uid: tp.Optional[int] = None,
-    target_uids: tp.Optional[tp.List[tp.Optional[int]]] = None,
+    target_uids: tp.Optional[tp.List[int]] = None,
     order: str = "",
     count: tp.Optional[int] = None,
     offset: int = 0,
     progress=None,
-) -> tp.Union[tp.List[int], tp.List[MutualFriends]]:
+) -> tp.Union[tp.List[dict]]:
     """
     Получить список идентификаторов общих друзей между парой пользователей.
     :param source_uid: Идентификатор пользователя, чьи друзья пересекаются с друзьями пользователя с идентификатором target_uid.
     :param target_uid: Идентификатор пользователя, с которым необходимо искать общих друзей.
-    :param target_uids: Cписок идентификаторов пользователей, с которыми необходимо искать общих друзей.
+    :param target_uids: Список идентификаторов пользователей, с которыми необходимо искать общих друзей.
     :param order: Порядок, в котором нужно вернуть список общих друзей.
     :param count: Количество общих друзей, которое нужно вернуть.
     :param offset: Смещение, необходимое для выборки определенного подмножества общих друзей.
     :param progress: Callback для отображения прогресса.
     """
-    session = session(base_url=VK_CONFIG["domain"])
-
+    current_session = Session(base_url=VK_CONFIG["domain"])
     data = {
         "access_token": VK_CONFIG["access_token"],
         "source_uid": source_uid,
@@ -75,17 +77,16 @@ def get_mutual(
         "target_uids": target_uids,
         "order": order,
         "count": count,
-        "offset": offset,
+        "offset": 0,
         "v": VK_CONFIG["version"],
     }
-
-    result = []
-    phrase = "friends.getMutual"
-    for i in range(math.ceil(len(target_uids) / 100) if target_uids else 1):
+    answer = []
+    query = "friends.getMutual"
+    for i in range((len(target_uids) / 100).__ceil__() if target_uids else 1):
         data["offset"] = i * 100
-        response = session.get(phrase, params=data)
-        json = response.json()["response"]
-        result.append(json)
+        response = current_session.get(query, params=data)
+        json = response.json()
+        answer += json["response"]
         if i % 2 == 0:
             sleep(1)
-    return result
+    return answer
