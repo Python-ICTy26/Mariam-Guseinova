@@ -5,7 +5,7 @@ import community as community_louvain
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
-from vkapi.friends import get_friends, get_mutual_with_class
+from vkapi.friends import get_friends, get_mutual
 
 
 def ego_network(
@@ -18,7 +18,7 @@ def ego_network(
     :param friends: Идентификаторы друзей, между которыми устанавливаются связи.
     """
     egonet = []
-    mutual = get_mutual_with_class(source_uid=friends[0], target_uids=friends)
+    mutual = get_mutual(source_uid=friends[0], target_uids=friends)
     for friend in mutual:
         for uid in friend["common_friends"]:
             egonet.append((friend["id"], uid))
