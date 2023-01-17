@@ -1,32 +1,48 @@
-import requests
+import requests  # type: ignore
 from bs4 import BeautifulSoup
 
 
-def extract_news(parser):
-    """ Extract news from a given web page """
-    news_list = []
+def extract_news(parser: BeautifulSoup) -> list:
+    """Extract news from https://news.ycombinator.com/newest site"""
+    news = []
+    title_lines = list(
+        map(
+            lambda x: x.find("span", {"class": "titleline"}),
+            parser.findAll("tr", {"class": "athing"}),
+        )
+    )
+    sub_lines = parser.findAll("td", {"class": "subtext"})
 
-    # PUT YOUR CODE HERE
+    for i in range(len(title_lines)):
+        title_line = title_lines[i]
+        sub_line = sub_lines[i]
+        title = title_line.find("a").text
+        author = sub_line.find("a", {"class": "hnuser"}).text
+        url = title_line.find("a")["href"]
+        if comments := sub_line.findAll("a")[-1].text != "discuss":
+            comments = int(comments)
+        else:
+            comments = 0
+        points = sub_line.find("span", {"class": "score"}).text
+        news.append(
+            {"title": title, "author": author, "url": url, "comments": comments, "points": points}
+        )
 
-    return news_list
+    return news
 
 
-def extract_next_page(parser):
-    """ Extract next page URL """
-    # PUT YOUR CODE HERE
+def extract_next_page(parser: BeautifulSoup) -> str:
+    """Extract next page URL"""
+    next_page = parser.find("a", {"class": "morelink"})["href"]
+    return next_page
 
 
 def get_news(url, n_pages=1):
-    """ Collect news from a given web page """
+    """Collect news from a given web page"""
     news = []
-    while n_pages:
-        print("Collecting data from page: {}".format(url))
+    for i in range(n_pages):
         response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        news_list = extract_news(soup)
-        next_page = extract_next_page(soup)
-        url = "https://news.ycombinator.com/" + next_page
-        news.extend(news_list)
-        n_pages -= 1
+        parser = BeautifulSoup(response.content, "html.parser")
+        news.extend(extract_news(parser))
+        url = extract_next_page(parser)
     return news
-
